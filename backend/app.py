@@ -1,8 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from config import Config
-from extensions import db
-from models import Ator, Usuario, Unidade
+from extensions import db, migrate
+from routes.auth_routes import auth_bp
+from routes.ator_routes import ator_bp
+from errors import AppError
 
 def create_app():
     app = Flask(__name__)
@@ -10,18 +12,30 @@ def create_app():
     
     CORS(app)
     db.init_app(app)
+    migrate.init_app(app, db)
+
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(ator_bp, url_prefix='/api/atores')
+
+    @app.errorhandler(AppError)
+    def handle_app_error(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response
+
+    @app.errorhandler(Exception)
+    def handle_generic_error(error):
+        if isinstance(error, AppError):
+            return handle_app_error(error)
+            
+        return jsonify({
+            "error": True, 
+            "message": "Erro interno do servidor."
+        }), 500
 
     @app.route('/')
-    def home():
-        return {"status": "Backend Python Online", "missao": "Migração Cognvox"}
-
-    @app.route('/test-db')
-    def test_db():
-        try:
-            count = db.session.query(Ator).count()
-            return {"status": "success", "message": f"Conexão OK! {count} atores no banco."}
-        except Exception as e:
-            return {"status": "error", "message": str(e)}, 500
+    def health_check():
+        return {"system": "Cognvox API", "version": "1.0.0", "status": "online"}
 
     return app
 
