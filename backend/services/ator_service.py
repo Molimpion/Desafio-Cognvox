@@ -1,101 +1,59 @@
 import base64
-from extensions import db
+from repositories.ator_repository import AtorRepository
 from models import Ator, Usuario
-from errors import ValidationError, NotFoundError
+from werkzeug.exceptions import BadRequest, NotFound
 
 class AtorService:
-    @staticmethod
-    def get_all():
-        return [ator.to_dict() for ator in Ator.query.all()]
+    def __init__(self):
+        self.repo = AtorRepository()
 
-    @staticmethod
-    def get_by_id(id):
-        ator = Ator.query.get(id)
+    def get_all(self):
+        return self.repo.get_all()
+
+    def get_by_id(self, id):
+        ator = self.repo.get_by_id(id)
         if not ator:
-            raise NotFoundError(f"Ator com ID {id} não encontrado")
+            raise NotFound(f"Ator {id} não encontrado")
         return ator
 
-    @staticmethod
-    def create(data):
-        if Ator.query.filter_by(EMAIL=data.get('email')).first():
-            raise ValidationError("Já existe esse email cadastrado em nossos registros!")
+    def create(self, data):
+        if self.repo.get_by_email(data['email']):
+            raise BadRequest("Email já cadastrado")
 
-        try:
-            novo_ator = Ator(
-                NOME=data.get('nome'),
-                EMAIL=data.get('email'),
-                TELEFONECEL=data.get('telefone'),
-                UNIDADEID=data.get('unidade_id'),
-                STATUS=1,
-                HEXADECIMALFOTO=""
-            )
-            db.session.add(novo_ator)
-            db.session.flush()
+        novo_ator = Ator(
+            nome=data['nome'],
+            email=data['email'],
+            cpf=data.get('cpf'),
+            telefone_cel=data.get('telefone_cel'),
+            unidade_id=data.get('unidade_id'),
+            profissao_id=data.get('profissao_id'),
+            status_cod=1
+        )
 
-            senha_b64 = base64.b64encode(data.get('senha').encode()).decode()
-            
-            novo_usuario = Usuario(
-                USUARIO=data.get('login'),
-                SENHA=senha_b64,
-                NOME=data.get('nome'),
-                EMAIL=data.get('email'),
-                COD_EMPRESA=data.get('unidade_id'),
-                COD_STATUS=1,
-                COD_GRUPO_USUARIO=1,
-                CPF=data.get('cpf')
-            )
-            db.session.add(novo_usuario)
-
-            db.session.commit()
-
-            return {
-                "message": "Ator e Usuário criados com sucesso",
-                "ator_id": novo_ator.ID,
-                "usuario_id": novo_usuario.id
-            }
-
-        except Exception as e:
-            db.session.rollback()
-            raise e
-
-    @staticmethod
-    def update(id, data):
-        ator = AtorService.get_by_id(id)
-        email_antigo = ator.EMAIL
+        senha_encoded = base64.b64encode(data['senha'].encode()).decode()
         
-        try:
-            ator.NOME = data.get('nome', ator.NOME)
-            ator.EMAIL = data.get('email', ator.EMAIL)
-            ator.TELEFONECEL = data.get('telefone', ator.TELEFONECEL)
-            ator.UNIDADEID = data.get('unidade_id', ator.UNIDADEID)
+        novo_usuario = Usuario(
+            usuario=data['login'],
+            senha=senha_encoded,
+            nome=data['nome'],
+            email=data['email'],
+            cod_empresa=data.get('unidade_id'),
+            cod_status=1,
+            cod_grupo_usuario=1,
+            cpf=data.get('cpf')
+        )
 
-            usuario = Usuario.query.filter_by(EMAIL=email_antigo).first()
-            if usuario:
-                usuario.NOME = ator.NOME
-                usuario.EMAIL = ator.EMAIL
-                if 'senha' in data:
-                    usuario.SENHA = base64.b64encode(data['senha'].encode()).decode()
-            
-            db.session.commit()
-            return {"message": "Ator atualizado com sucesso", "ator": ator.to_dict()}
-            
-        except Exception as e:
-            db.session.rollback()
-            raise e
+        return self.repo.create_transaction(novo_ator, novo_usuario)
 
-    @staticmethod
-    def delete(id):
-        ator = AtorService.get_by_id(id)
+    def update(self, id, data):
+        ator = self.get_by_id(id)
         
-        try:
-            usuario = Usuario.query.filter_by(EMAIL=ator.EMAIL).first()
-            if usuario:
-                db.session.delete(usuario)
-            
-            db.session.delete(ator)
-            db.session.commit()
-            return {"message": "Ator e vínculos removidos com sucesso"}
+        for key, value in data.items():
+            if hasattr(ator, key):
+                setattr(ator, key, value)
+                
+        return self.repo.update(ator)
 
-        except Exception as e:
-            db.session.rollback()
-            raise e
+    def delete(self, id):
+        ator = self.get_by_id(id)
+        self.repo.delete(ator)

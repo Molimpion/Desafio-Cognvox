@@ -1,47 +1,21 @@
 from flask import Blueprint, request, jsonify
 from services.auth_service import AuthService
-from errors import ValidationError
+from schemas import LoginSchema
+from marshmallow import ValidationError
 
 auth_bp = Blueprint('auth', __name__)
+service = AuthService()
+schema = LoginSchema()
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """
-    Realiza o login do usuário
-    ---
-    tags:
-      - Autenticação
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - usuario
-            - senha
-          properties:
-            usuario:
-              type: string
-              example: admin
-            senha:
-              type: string
-              example: 123456
-    responses:
-      200:
-        description: Login realizado com sucesso
-      401:
-        description: Credenciais inválidas
-    """
-    data = request.get_json()
-    
-    if not data or not data.get('usuario') or not data.get('senha'):
-        raise ValidationError("Os campos 'usuario' e 'senha' são obrigatórios")
-
-    response_data = AuthService.login(data.get('usuario'), data.get('senha'))
-    
-    return jsonify({
-        "success": True,
-        "message": "Login realizado com sucesso",
-        "data": response_data
-    }), 200
+    try:
+        data = schema.load(request.get_json())
+        response = service.login(data)
+        return jsonify(response), 200
+        
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    except Exception as e:
+        status_code = 401 if "inválidos" in str(e) else 500
+        return jsonify({"error": str(e)}), status_code
