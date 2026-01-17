@@ -1,6 +1,6 @@
 import base64
-from repositories.ator_repository import AtorRepository
-from models import Ator, Usuario
+from app.repositories.ator_repository import AtorRepository
+from app.models import Ator, Usuario
 from werkzeug.exceptions import BadRequest, NotFound
 
 class AtorService:
@@ -47,11 +47,9 @@ class AtorService:
 
     def update(self, id, data):
         ator = self.get_by_id(id)
-        
         for key, value in data.items():
             if hasattr(ator, key):
                 setattr(ator, key, value)
-                
         return self.repo.update(ator)
 
     def delete(self, id):

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from services.auth_service import AuthService
-from schemas import LoginSchema
+from app.services.auth_service import AuthService
+from app.schemas import LoginSchema
 from marshmallow import ValidationError
 
 auth_bp = Blueprint('auth', __name__)
@@ -13,7 +13,6 @@ def login():
         data = schema.load(request.get_json())
         response = service.login(data)
         return jsonify(response), 200
-        
     except ValidationError as err:
         return jsonify(err.messages), 400
     except Exception as e:

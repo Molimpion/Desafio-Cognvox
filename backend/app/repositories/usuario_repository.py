@@ -1,5 +1,5 @@
-from models import Usuario
-from extensions import db
+from app.models import Usuario
+from app.extensions import db
 
 class UsuarioRepository:
     def get_by_login(self, login):

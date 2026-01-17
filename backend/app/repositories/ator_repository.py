@@ -1,5 +1,5 @@
-from models import Ator, Usuario
-from extensions import db
+from app.models import Ator, Usuario
+from app.extensions import db
 
 class AtorRepository:
     def get_all(self):
@@ -15,7 +15,6 @@ class AtorRepository:
         try:
             db.session.add(ator)
             db.session.flush()
-            
             db.session.add(usuario)
             db.session.commit()
             return ator
@@ -36,7 +35,6 @@ class AtorRepository:
             usuario = Usuario.query.filter_by(email=ator.email).first()
             if usuario:
                 db.session.delete(usuario)
-            
             db.session.delete(ator)
             db.session.commit()
         except Exception as e:

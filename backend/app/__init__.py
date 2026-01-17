@@ -1,9 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
-from config import Config
-from extensions import db, ma, migrate
-from routes.ator_routes import ator_bp
-from routes.auth_routes import auth_bp
+from app.config import Config
+from app.extensions import db, ma, migrate
 
 def create_app():
     app = Flask(__name__)
@@ -14,17 +12,15 @@ def create_app():
     ma.init_app(app)
     migrate.init_app(app, db)
 
-    import models 
-
+    from app import models 
+    from app.routes.ator_routes import ator_bp
+    from app.routes.auth_routes import auth_bp
+    
     app.register_blueprint(ator_bp, url_prefix='/api/ator')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
     @app.route('/')
     def home():
-        return {"status": "API Online", "mensagem": "Bem-vindo ao teste Cognvox!"}
+        return {"status": "API Online", "mensagem": "Estrutura Enterprise (Padrão Miguel)"}
 
     return app
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True, port=5000)

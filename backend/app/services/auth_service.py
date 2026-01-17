@@ -3,7 +3,7 @@ import jwt
 import datetime
 import os
 from werkzeug.exceptions import Unauthorized
-from repositories.usuario_repository import UsuarioRepository
+from app.repositories.usuario_repository import UsuarioRepository
 
 class AuthService:
     def __init__(self):
@@ -20,10 +20,8 @@ class AuthService:
 
         try:
             senha_input_b64 = base64.b64encode(senha_input.encode()).decode()
-            
             if usuario.senha != senha_input_b64:
                 raise Unauthorized("Usuário ou senha inválidos")
-                
         except Exception:
             raise Unauthorized("Erro na validação das credenciais")
 
@@ -47,6 +45,5 @@ class AuthService:
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }
-        
         secret = os.getenv('SECRET_KEY', 'dev_key')
         return jwt.encode(payload, secret, algorithm='HS256')

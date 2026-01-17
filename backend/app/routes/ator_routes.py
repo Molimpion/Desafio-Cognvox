@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from services.ator_service import AtorService
-from schemas import AtorSchema
+from app.services.ator_service import AtorService
+from app.schemas import AtorSchema
 from marshmallow import ValidationError
 
 ator_bp = Blueprint('ator', __name__)
