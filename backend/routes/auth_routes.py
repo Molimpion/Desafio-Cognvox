@@ -6,6 +6,33 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """
+    Realiza o login do usuário
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - usuario
+            - senha
+          properties:
+            usuario:
+              type: string
+              example: admin
+            senha:
+              type: string
+              example: 123456
+    responses:
+      200:
+        description: Login realizado com sucesso
+      401:
+        description: Credenciais inválidas
+    """
     data = request.get_json()
     
     if not data or not data.get('usuario') or not data.get('senha'):
