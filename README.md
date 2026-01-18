@@ -8,7 +8,7 @@
 ### Backend e Banco de Dados
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white) ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white) ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 
-### Ferramentas e Documentação
+### Ferramentas
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens) ![Marshmallow](https://img.shields.io/badge/Marshmallow-E01563?style=for-the-badge) ![Alembic](https://img.shields.io/badge/Migrations-Alembic-blue)
 
 ---
@@ -50,8 +50,6 @@ CREATE DATABASE cognvox_migracao;
 
 ```
 
-
-
 ### Passo 2: Configuração do Backend (Terminal 1)
 
 1. Acesse a pasta do backend:
@@ -60,14 +58,12 @@ cd backend
 
 ```
 
-
 2. Crie e ative o ambiente virtual:
 ```bash
 python -m venv venv
 source venv/Scripts/activate  # No Windows: venv\Scripts\activate
 
 ```
-
 
 3. Instale as dependências e aplique as migrações:
 ```bash
@@ -76,14 +72,11 @@ python -m flask db upgrade
 
 ```
 
-
 4. Inicie o servidor:
 ```bash
 python run.py
 
 ```
-
-
 
 ---
 
@@ -96,9 +89,7 @@ python run.py
 3. Este script realiza:
 * **Criação do usuário Admin** (Login: `admin` | Senha: `123456`).
 * **Cadastro de domínios obrigatórios:** Profissões (Ator DI, Aluno, etc), Unidades, Idiomas e Status.
-
-
-
+  
 ---
 
 ### Passo 4: Configuração do Frontend (Terminal 2)
@@ -110,19 +101,30 @@ npm install
 
 ```
 
-
 2. Inicie a aplicação:
 ```bash
 npm run dev
 
 ```
 
-
-
 ## 5. Endpoints da API
 
-| Método | Endpoint | Função |
-| --- | --- | --- |
-| `POST` | `/api/auth/login` | Autentica usuário e retorna Token JWT |
-| `GET` | `/api/atores` | Lista todos os atores cadastrados |
-| `POST` | `/api/atores` | Cadastra novo ator e dados clínicos |
+Abaixo estão os principais endpoints da aplicação. Para as rotas de atores, é necessário enviar o Token JWT no cabeçalho da requisição (`Authorization: Bearer <TOKEN>`).
+
+### Autenticação (`/api/auth`)
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/login` | Realiza o login e retorna o Token JWT e dados do usuário. |
+
+### Atores (`/api/atores`)
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/` | Retorna a lista completa de atores cadastrados. |
+| `POST` | `/` | Realiza a inclusão de um novo ator e seus respectivos dados clínicos. |
+| `GET` | `/:id` | Busca os detalhes de um ator específico pelo ID. |
+
+### Domínios e Auxiliares
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/api/profissoes` | Lista as profissões disponíveis para o formulário. |
+| `GET` | `/api/unidades` | Lista as instituições/unidades cadastradas. |
