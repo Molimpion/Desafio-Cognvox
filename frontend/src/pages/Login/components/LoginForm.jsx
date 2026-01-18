@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../../services/api";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -7,14 +8,28 @@ const LoginForm = () => {
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const response = await api.post("/auth/login", {
+        usuario: login,
+        senha: senha,
+      });
+
+      const { token, usuario } = response.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(usuario));
+
       navigate("/atores");
-    }, 1500);
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert("Login falhou! Verifique se digitou 'admin' e '123456'.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

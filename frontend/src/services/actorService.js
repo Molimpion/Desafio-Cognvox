@@ -3,10 +3,20 @@ import api from "./api";
 const ActorService = {
   getAll: async (filters = {}) => {
     try {
-      const response = await api.get("/atores", { params: filters });
+      const response = await api.get("/ator", { params: filters });
       return response.data;
     } catch (error) {
       console.error("Erro ao buscar atores:", error);
+      throw error;
+    }
+  },
+
+  create: async (actorData) => {
+    try {
+      const response = await api.post("/ator/", actorData);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao criar ator:", error);
       throw error;
     }
   },
@@ -23,7 +33,7 @@ const ActorService = {
 
   delete: async (id) => {
     try {
-      await api.delete(`/atores/${id}`);
+      await api.delete(`/ator/${id}`);
     } catch (error) {
       console.error("Erro ao deletar ator:", error);
       throw error;
