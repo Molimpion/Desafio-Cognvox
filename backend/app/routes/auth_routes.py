@@ -1,20 +1,31 @@
 from flask import Blueprint, request, jsonify
 from app.services.auth_service import AuthService
 from app.schemas import LoginSchema
-from marshmallow import ValidationError
+import traceback
 
-auth_bp = Blueprint('auth', __name__)
-service = AuthService()
-schema = LoginSchema()
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    auth_service = AuthService()
+    
     try:
-        data = schema.load(request.get_json())
-        response = service.login(data)
-        return jsonify(response), 200
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+        data = request.get_json()
+        
+        schema = LoginSchema()
+        errors = schema.validate(data)
+        if errors:
+            return jsonify(errors), 400
+
+        usuario = data.get('usuario')
+        senha = data.get('senha')
+        result = auth_service.login(usuario_login=usuario, senha_input=senha)
+        
+        return jsonify(result), 200
+
     except Exception as e:
-        status_code = 401 if "inválidos" in str(e) else 500
-        return jsonify({"error": str(e)}), status_code
+        print("\n" + "="*50)
+        print("ERRO NO LOGIN:")
+        traceback.print_exc()
+        print("="*50 + "\n")
+        return jsonify({'message': 'Erro interno no servidor', 'error': str(e)}), 500

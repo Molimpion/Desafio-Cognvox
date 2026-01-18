@@ -17,29 +17,28 @@ class AtorService:
         return ator
 
     def create(self, data):
+        # 1. Verifica duplicidade
         if self.repo.get_by_email(data['email']):
             raise BadRequest("Email já cadastrado")
 
-        novo_ator = Ator(
-            nome=data['nome'],
-            email=data['email'],
-            cpf=data.get('cpf'),
-            telefone_cel=data.get('telefone_cel'),
-            unidade_id=data.get('unidade_id'),
-            profissao_id=data.get('profissao_id'),
-            status_cod=1
-        )
+        login = data.pop('login', None)
+        senha = data.pop('senha', None)
+        grupo_usuario = data.pop('grupo_usuario', 1)
+        novo_ator = Ator(**data)
+        
+        if not novo_ator.status_cod:
+            novo_ator.status_cod = 1
 
-        senha_encoded = base64.b64encode(data['senha'].encode()).decode()
+        senha_encoded = base64.b64encode(senha.encode()).decode()
         
         novo_usuario = Usuario(
-            usuario=data['login'],
+            usuario=login,
             senha=senha_encoded,
             nome=data['nome'],
             email=data['email'],
             cod_empresa=data.get('unidade_id'),
             cod_status=1,
-            cod_grupo_usuario=1,
+            cod_grupo_usuario=grupo_usuario,
             cpf=data.get('cpf')
         )
 

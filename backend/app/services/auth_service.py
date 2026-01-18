@@ -9,19 +9,19 @@ class AuthService:
     def __init__(self):
         self.repo = UsuarioRepository()
 
-    def login(self, data):
-        login_input = data['usuario']
-        senha_input = data['senha']
-
-        usuario = self.repo.get_by_login(login_input)
+    def login(self, usuario_login, senha_input):
+        
+        usuario = self.repo.get_by_login(usuario_login)
         
         if not usuario:
             raise Unauthorized("Usuário ou senha inválidos")
 
         try:
             senha_input_b64 = base64.b64encode(senha_input.encode()).decode()
+            
             if usuario.senha != senha_input_b64:
                 raise Unauthorized("Usuário ou senha inválidos")
+                
         except Exception:
             raise Unauthorized("Erro na validação das credenciais")
 
