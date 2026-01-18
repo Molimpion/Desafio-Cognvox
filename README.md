@@ -121,10 +121,3 @@ Abaixo estão os principais endpoints da aplicação. Para as rotas de atores, �
 | :--- | :--- | :--- |
 | `GET` | `/` | Retorna a lista completa de atores cadastrados. |
 | `POST` | `/` | Realiza a inclusão de um novo ator e seus respectivos dados clínicos. |
-| `GET` | `/:id` | Busca os detalhes de um ator específico pelo ID. |
-
-### Domínios e Auxiliares
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/api/profissoes` | Lista as profissões disponíveis para o formulário. |
-| `GET` | `/api/unidades` | Lista as instituições/unidades cadastradas. |
