@@ -21,6 +21,6 @@ def create_app():
 
     @app.route('/')
     def home():
-        return {"status": "API Online", "mensagem": "Estrutura Enterprise (Padrão Miguel)"}
+        return {"status": "API Online", "mensagem": "Estrutura Enterprise"}
 
     return app
